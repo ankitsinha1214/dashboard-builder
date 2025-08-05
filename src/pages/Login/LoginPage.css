@@ -1,0 +1,16 @@
+.login-layout {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+.login-card {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.login-header {
+  margin-bottom: 24px;
+}
