@@ -4,8 +4,8 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Checkbox, Col, ColorPicker, Divider, Form, Input, InputNumber, Radio, Row, Select, Slider, Space, Switch } from "antd";
 import { useEffect, useState } from "react";
-import { mockData } from "../constants/mockData";
-import ButtonConfigPanel from "./widgets/Button/ButtonConfigPanel";
+import { mockData } from "../../../constants/mockData";
+import ButtonConfigPanel from "../../widgets/Button/ButtonConfigPanel";
 
 // Configuration Panel
 const ConfigPanel = ({ config, widgetType, onConfigChange, onCancel }) => {

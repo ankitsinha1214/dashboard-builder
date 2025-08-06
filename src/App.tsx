@@ -3,8 +3,8 @@ import LoginPage from './pages/Login/LoginPage';
 import AppTest from './pages/test';
 import PreviewPage from './pages/Preview/PreviewPage';
 import DashboardPreview from './pages/Preview/DashboardPreview';
-import DashboardManager from './components/DashboardManager';
-import "./App.css"
+import DashboardManager from './components/features/builder/DashboardManager';
+import "./styles/App.css" // updated import
 
 const App = () => {
   const isAuthenticated = sessionStorage.getItem('auth') === 'true';

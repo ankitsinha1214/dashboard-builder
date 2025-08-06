@@ -6,17 +6,17 @@ import { Button, Drawer, Empty, Form, Input, message, Modal, Space } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import Title from "antd/es/skeleton/Title";
 import { useEffect, useRef, useState } from "react";
-import { WIDGET_TYPES } from "../constants/widgetTypes";
+import { WIDGET_TYPES } from "../../../constants/widgetTypes";
 import ConfigPanel from "./ConfigPanel";
-import WidgetLibrary from "./WidgetLibrary";
-import BarChartWidget from "./widgets/BarChartWidget";
-import CalendarWidget from "./widgets/CalendarWidget";
-import DataTableWidget from "./widgets/DataTableWidget";
-import FormWidget from "./widgets/FormWidget";
-import ImageWidget from "./widgets/ImageWidget";
-import MetricCardWidget from "./widgets/MetricCardWidget";
-import TextWidget from "./widgets/TextWidget";
-import ButtonWidget from "./widgets/Button/ButtonWidget";
+import WidgetLibrary from "../../WidgetLibrary";
+import BarChartWidget from "../../widgets/BarChartWidget";
+import CalendarWidget from "../../widgets/CalendarWidget";
+import DataTableWidget from "../../widgets/DataTableWidget";
+import FormWidget from "../../widgets/FormWidget";
+import ImageWidget from "../../widgets/ImageWidget";
+import MetricCardWidget from "../../widgets/MetricCardWidget";
+import TextWidget from "../../widgets/TextWidget";
+import ButtonWidget from "../../widgets/Button/ButtonWidget";
 
 // Widget Layout Editor Component
 const WidgetLayoutEditor = ({ initialLayout, onSave, onBack }) => {

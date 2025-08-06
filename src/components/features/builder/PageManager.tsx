@@ -4,7 +4,7 @@
 import { ArrowLeftOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileOutlined, PlusOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Image, Input, List, message, Modal, Space, Typography, Upload, Grid } from 'antd';
 import { useState } from 'react';
-import DashboardService from '../services/DashboardService';
+import DashboardService from '../../../services/DashboardService';
 import WidgetLayoutEditor from './WidgetLayoutEditor';
 
 const { Title, Text } = Typography;
