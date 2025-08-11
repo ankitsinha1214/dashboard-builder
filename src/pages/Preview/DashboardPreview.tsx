@@ -174,11 +174,6 @@ const DashboardPreview = () => {
         
         setDashboardData(dashboard);
 
-        // 3. If no pageId is in the URL, redirect to the first page
-        // if (!pageId && dashboard.pages?.length > 0) {
-        //   navigate(`/preview/${dashboardId}/${dashboard.pages[0].id}`, { replace: true });
-        // }
-
       } catch (error: any) {
         console.error('Failed to load dashboard:', error);
         message.error(error.message || 'Failed to load dashboard');
@@ -218,19 +213,13 @@ const DashboardPreview = () => {
         <div style={{ height: '32px', margin: '16px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '6px' }} />
         {/* 4. Update Menu to be dynamic and use pageId for selection */}
         <Menu theme="dark" selectedKeys={[pageId]} mode="inline">
-            {/* <Menu.Item key="home" icon={<PieChartOutlined />}>
-              <Link to="/some-other-home-route">Home</Link>
-            </Menu.Item> */}
-            {/* <Menu.SubMenu key="dashboard-pages" icon={<AppstoreOutlined />} title={dashboardData.name}> */}
+
                 {dashboardData.pages?.map(page => (
                     <Menu.Item key={page.id} icon={<PieChartOutlined />}>
                         <Link to={`/preview/${dashboardId}/${page.id}`} >{page.name}</Link>
                     </Menu.Item>
                 ))}
-            {/* </Menu.SubMenu> */}
-            {/* <Menu.Item key="9" icon={<FileOutlined />}>
-              Files
-            </Menu.Item> */}
+
           </Menu>
       </Sider>
       <Layout className="site-layout">

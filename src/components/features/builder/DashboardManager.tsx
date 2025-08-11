@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 
-import { DashboardOutlined, DeleteOutlined, EditOutlined, EyeOutlined, MenuOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { DashboardOutlined, DeleteOutlined, EditOutlined, EyeOutlined, HolderOutlined, MenuOutlined, PlusOutlined, SettingOutlined, } from '@ant-design/icons';
 import { Button, Card, Form, Grid, Image, Input, List, Modal, Space, Typography, Upload, message } from 'antd';
 import { useEffect, useState } from 'react';
 import DashboardService from '../../../services/DashboardService';
@@ -223,10 +223,10 @@ const DashboardManager = () => {
             </Button>,
 
             <Button
-              icon={<MenuOutlined />}
+              icon={<PlusOutlined />}
               onClick={() => setSidebarConfigVisible(true)}
             >
-              Configure Sidebar
+              Add Dashboard
             </Button>
           }
         >
@@ -275,12 +275,19 @@ const DashboardManager = () => {
                       title="Preview"
                     />,
                     <Button
+                    type="text"
+                    icon={<HolderOutlined />}
+                    onClick={() => setSidebarConfigVisible(true)}
+                    title="Add dashboard"
+                  />,
+                    <Button
                       type="text"
                       danger
                       icon={<DeleteOutlined />}
                       onClick={() => handleDeleteDashboard(dashboard.id)}
                       title="Delete"
                     />,
+                
                   ]}
                 >
                   <Card.Meta

@@ -115,29 +115,64 @@ const { Header, Content, Footer, Sider } = Layout;
 const { Title, Text } = Typography;
 
 // A placeholder for your actual widget creation logic
-const createWidget = (type, props) => {
-  return (
-    <div>
-      <p>Config: {JSON.stringify(props.config)}</p>
-    </div>
-  );
+// const createWidget = (type, props) => {
+//   return (
+//     <div>
+//       <p>Config: {JSON.stringify(props.config)}</p>
+//     </div>
+//   );
+// };
+
+const createWidget = (type, config) => {
+
+    const textStyle = {
+        color: config.textColor || '#000000',
+        fontSize: config.fontSize ? `${config.fontSize}px` : '14px',
+        textAlign: config.textAlign || 'left',
+    };
+
+    switch (type) {
+        case 'text-widget':
+            return (
+                <div style={textStyle}>
+                    <p>{config.content}</p>
+                </div>
+            );
+
+        case 'metric-card':
+            const changeStyle = {
+                color: config.changeType === 'positive' ? '#3f8600' : '#cf1322',
+                marginLeft: '8px',
+                fontSize: '1em',
+                fontWeight: 'normal',
+            };
+            return (
+                <div style={{ ...textStyle, fontSize: '2em', fontWeight: 'bold' }}>
+                    {config.value}
+                    <span style={changeStyle}>{config.change}</span>
+                </div>
+            );
+
+        default:
+            return <p>Unknown widget type: {type}</p>;
+    }
 };
 
 const PreviewPage = () => {
     const { dashboardId, pageId } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const [dashboardData, setDashboardData] = useState(null); // For Sider and Header
-    const [pageData, setPageData] = useState(null); // For Content
+    const [dashboardData, setDashboardData] = useState(null); 
+    const [pageData, setPageData] = useState(null); 
     const [collapsed, setCollapsed] = useState(false);
 
     useEffect(() => {
-        // Fetch both dashboard data (for nav) and specific page data (for content)
+       
         const fetchData = async () => {
             try {
                 setLoading(true);
 
-                // Use Promise.all to fetch in parallel for efficiency
+
                 const [dashboardRes, pageRes] = await Promise.all([
                     fetch(`/api/dashboards/${dashboardId}`),
                     fetch(`/api/dashboards/${dashboardId}/pages/${pageId}`)
@@ -160,9 +195,9 @@ const PreviewPage = () => {
             }
         };
 
-        // Redirect if pageId is missing
+       
         if (!pageId) {
-            // We need to fetch dashboard data first to find the first page
+           
             const getFirstPage = async () => {
                 const dashboardRes = await fetch(`/api/dashboards/${dashboardId}`);
                 if (dashboardRes.ok) {
@@ -221,7 +256,7 @@ const PreviewPage = () => {
                         <Text type="secondary">{pageData.config?.description}</Text>
                     </div>
                 </Header>
-                <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
+                {/* <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
                     {pageData.layout?.widgets && pageData.layout.widgets.length > 0 ? (
                         <Row gutter={[16, 16]}>
                             {pageData.layout.widgets.map(widget => (
@@ -239,6 +274,47 @@ const PreviewPage = () => {
                                     </Card>
                                 </Col>
                             ))}
+                        </Row>
+                    ) : (
+                        <div style={{textAlign: 'center', marginTop: '50px'}}>
+                            <Empty description={<span>This page has no widgets.</span>} />
+                        </div>
+                    )}
+                </Content> */}
+                <Content style={{ margin: '24px 16px', padding: 24, background: '#f0f2f5' }}>
+                    {pageData.layout?.widgets && pageData.layout.widgets.length > 0 ? (
+                        <Row gutter={[16, 16]}>
+                            {pageData.layout.widgets.map(widget => {
+                               
+                                const cardStyle = {
+                                    minHeight: widget.size?.height || 150, 
+                                    backgroundColor: widget.config?.backgroundColor || '#ffffff', 
+                                };
+                                const headStyle = {
+                                    color: widget.config?.textColor || '#000000', 
+                                };
+
+                                return (
+                     
+                                    <Col 
+                                        key={widget.id} 
+                                        xs={24}
+                                        sm={12}
+                                        md={8}
+                                        lg={6} 
+                                    >
+                                        <Card 
+                                            title={widget.config.title} 
+                                            bordered={false} 
+                                            style={cardStyle}
+                                            headStyle={headStyle}
+                                        >
+                                            
+                                            {createWidget(widget.type, widget.config)}
+                                        </Card>
+                                    </Col>
+                                );
+                            })}
                         </Row>
                     ) : (
                         <div style={{textAlign: 'center', marginTop: '50px'}}>
