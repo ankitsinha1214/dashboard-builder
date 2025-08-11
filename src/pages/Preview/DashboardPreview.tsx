@@ -125,19 +125,24 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Spin, message, Tabs, Row, Col, Card, Layout, Menu, Empty, Typography, Descriptions } from 'antd';
+// 1. Import hooks and Link from react-router-dom
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Spin, message, Row, Col, Card, Layout, Menu, Empty, Typography, Descriptions } from 'antd';
 import {
   DesktopOutlined,
   PieChartOutlined,
   FileOutlined,
   TeamOutlined,
   UserOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
-const { TabPane } = Tabs;
 const { Title, Text } = Typography;
 
 // A placeholder for your actual widget creation logic
@@ -151,25 +156,29 @@ const createWidget = (type, props) => {
 
 
 const DashboardPreview = () => {
-  const { dashboardId } = useParams();
+  // 2. Get both dashboardId and pageId from the URL
+  const { dashboardId, pageId } = useParams();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
-  const [activeTab, setActiveTab] = useState('');
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Calling the actual API endpoint
         const dashboardRes = await fetch(`/api/dashboards/${dashboardId}`);
         if (!dashboardRes.ok) throw new Error('Dashboard not found');
         const dashboard = await dashboardRes.json();
         
         setDashboardData(dashboard);
-        if (dashboard.pages?.length > 0) {
-          setActiveTab(dashboard.pages[0].id);
-        }
+
+        // 3. If no pageId is in the URL, redirect to the first page
+        // if (!pageId && dashboard.pages?.length > 0) {
+        //   navigate(`/preview/${dashboardId}/${dashboard.pages[0].id}`, { replace: true });
+        // }
+
       } catch (error: any) {
         console.error('Failed to load dashboard:', error);
         message.error(error.message || 'Failed to load dashboard');
@@ -179,7 +188,10 @@ const DashboardPreview = () => {
     };
 
     fetchData();
-  }, [dashboardId]);
+  }, [dashboardId, pageId, navigate]); // Add dependencies
+
+  // Find the currently active page based on the pageId from the URL
+  const activePage = dashboardData?.pages?.find(p => p.id === pageId);
 
   if (loading) {
     return (
@@ -204,11 +216,21 @@ const DashboardPreview = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
         <div style={{ height: '32px', margin: '16px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '6px' }} />
-        <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-            <Menu.Item key="1" icon={<PieChartOutlined />}>
-              Dashboard
-            </Menu.Item>
-   
+        {/* 4. Update Menu to be dynamic and use pageId for selection */}
+        <Menu theme="dark" selectedKeys={[pageId]} mode="inline">
+            {/* <Menu.Item key="home" icon={<PieChartOutlined />}>
+              <Link to="/some-other-home-route">Home</Link>
+            </Menu.Item> */}
+            {/* <Menu.SubMenu key="dashboard-pages" icon={<AppstoreOutlined />} title={dashboardData.name}> */}
+                {dashboardData.pages?.map(page => (
+                    <Menu.Item key={page.id} icon={<PieChartOutlined />}>
+                        <Link to={`/preview/${dashboardId}/${page.id}`} >{page.name}</Link>
+                    </Menu.Item>
+                ))}
+            {/* </Menu.SubMenu> */}
+            {/* <Menu.Item key="9" icon={<FileOutlined />}>
+              Files
+            </Menu.Item> */}
           </Menu>
       </Sider>
       <Layout className="site-layout">
@@ -216,23 +238,16 @@ const DashboardPreview = () => {
             <div>
                 <Title level={3} style={{ margin: '8px 0 0 0' }}>{dashboardData.name}</Title>
                 <Text type="secondary">{dashboardData.config?.description}</Text>
-                <br/>
-                <Text type="secondary" style={{ fontSize: '12px' }}>
-                    Created on: {new Date(dashboardData.createdAt).toLocaleDateString()}
-                </Text>
             </div>
         </Header>
-        <Content style={{ margin: '0 16px', display: 'flex', flexDirection: 'column' }}>
-            <Tabs 
-                activeKey={activeTab}
-                onChange={setActiveTab}
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: '16px' }}
-            >
-                {dashboardData.pages?.map(page => (
-                <TabPane tab={page.name} key={page.id} style={{ height: '100%', overflowY: 'auto', padding: '10px' }}>
-                    {page.layout?.widgets && page.layout.widgets.length > 0 ? (
+        {/* 5. Remove Tabs and render only the active page's content */}
+        <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
+            {activePage ? (
+                <>
+                    <Title level={4}>{activePage.name}</Title>
+                    {activePage.layout?.widgets && activePage.layout.widgets.length > 0 ? (
                         <Row gutter={[16, 16]}>
-                            {page.layout.widgets.map(widget => (
+                            {activePage.layout.widgets.map(widget => (
                                 <Col 
                                 key={widget.id} 
                                 xs={24}
@@ -240,7 +255,7 @@ const DashboardPreview = () => {
                                 md={12}
                                 lg={widget.size.width}
                                 >
-                                <Card title={`${widget.type} Widget`} bordered={false} style={{ height: '100%' }}>
+                                <Card title={`${widget.type} Widget`} bordered={false} style={{ height: '100%', background: '#f0f2f5' }}>
                                     {createWidget(widget.type, {
                                     config: widget.config,
                                     })}
@@ -250,22 +265,15 @@ const DashboardPreview = () => {
                         </Row>
                     ) : (
                         <div style={{textAlign: 'center', marginTop: '50px'}}>
-                            <Empty description={
-                                <span>
-                                    This page has no widgets.
-                                </span>
-                            } />
+                            <Empty description={<span>This page has no widgets.</span>} />
                         </div>
                     )}
-                    {/* {page.layout?.gridConfig && (
-                        <Descriptions title="Page Grid Configuration" bordered size="small" style={{marginTop: '24px'}}>
-                            <Descriptions.Item label="Columns">{page.layout.gridConfig.cols}</Descriptions.Item>
-                            <Descriptions.Item label="Row Height">{page.layout.gridConfig.rowHeight}px</Descriptions.Item>
-                        </Descriptions>
-                    )} */}
-                </TabPane>
-                ))}
-            </Tabs>
+                </>
+            ) : (
+                 <div style={{textAlign: 'center', marginTop: '50px'}}>
+                    <Empty description={<span>Please select a page from the menu.</span>} />
+                </div>
+            )}
         </Content>
         <Footer style={{ textAlign: 'center' }}>
           Example ©{new Date().getFullYear()} Created by You
