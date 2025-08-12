@@ -213,18 +213,20 @@ const DashboardManager = () => {
           }}
           bodyStyle={{ padding: screens.md ? '24px' : '16px' }}
           extra={
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setCreateModalVisible(true)}
-              size={screens.md ? 'middle' : 'small'}
-            >
-              New Dashboard
-            </Button>,
+            // <Button
+            //   type="primary"
+            //   icon={<PlusOutlined />}
+            //   // size={screens.md ? 'middle' : 'small'}
+            //   onClick={() => setCreateModalVisible(true)}
+            // >
+            //   New Dashboard
+            // </Button>,
 
             <Button
               icon={<PlusOutlined />}
-              onClick={() => setSidebarConfigVisible(true)}
+              // onClick={() => setSidebarConfigVisible(true)}
+              onClick={() => setCreateModalVisible(true)}
+              size={screens.md ? 'middle' : 'small'}
             >
               Add Dashboard
             </Button>
@@ -278,7 +280,7 @@ const DashboardManager = () => {
                     type="text"
                     icon={<HolderOutlined />}
                     onClick={() => setSidebarConfigVisible(true)}
-                    title="Add dashboard"
+                    title="Configuration"
                   />,
                     <Button
                       type="text"

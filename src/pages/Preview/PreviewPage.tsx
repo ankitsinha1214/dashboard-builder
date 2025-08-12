@@ -323,7 +323,7 @@ const PreviewPage = () => {
                     )}
                 </Content>
                 <Footer style={{ textAlign: 'center' }}>
-                    Example ©{new Date().getFullYear()} Created by You
+                    © {new Date().getFullYear()} Esyasoft Technology Private Limited. All rights reserved.
                 </Footer>
             </Layout>
         </Layout>
