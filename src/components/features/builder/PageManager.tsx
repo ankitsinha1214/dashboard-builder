@@ -6,12 +6,15 @@ import { Button, Card, Form, Image, Input, List, message, Modal, Space, Typograp
 import { useState } from 'react';
 import DashboardService from '../../../services/DashboardService';
 import WidgetLayoutEditor from './WidgetLayoutEditor';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
 const PageManager = ({ dashboard, onBack }) => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(null);
+  const [pageToConfigure, setPageToConfigure] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [pageName, setPageName] = useState('');
   const [pageConfigModalVisible, setPageConfigModalVisible] = useState(false);
@@ -32,12 +35,36 @@ const PageManager = ({ dashboard, onBack }) => {
       dashboard.pages = [...dashboard.pages, newPage];
       setModalVisible(false);
       setPageName('');
+      window.dispatchEvent(new Event('pagesUpdated'));
       message.success('Page created successfully');
     } catch (error) {
       console.error('Failed to create page:', error);
       message.error('Failed to create page');
     }
   };
+
+  // const createPage = async () => {
+  //   if (!pageName.trim()) return;
+  
+  //   try {
+  //     // 1. This correctly calls your API service to create the page.
+  //     await DashboardService.createPage(dashboard.id, pageName);
+  
+  //     // 2. This is the crucial new line. It notifies other components
+  //     //    (like PreviewPage) that they need to refresh their data.
+  //     window.dispatchEvent(new Event('pagesUpdated'));
+  
+  //     // 3. The rest of your logic for closing the modal and showing
+  //     //    a success message is perfect.
+  //     setModalVisible(false);
+  //     setPageName('');
+  //     message.success('Page created successfully');
+      
+  //   } catch (error) {
+  //     console.error('Failed to create page:', error);
+  //     message.error('Failed to create page');
+  //   }
+  // };
 
   const deletePage = async (pageId) => {
     try {
@@ -65,11 +92,25 @@ const PageManager = ({ dashboard, onBack }) => {
   };
 
   const savePageConfig = async () => {
+    if (!pageToConfigure) return;
+   
     try {
-      await DashboardService.savePageConfig(currentPage.id, pageConfig);
-      currentPage.config = pageConfig;
-      setPageConfigModalVisible(false);
-      message.success('Page configuration saved successfully');
+      await DashboardService.savePageConfig(pageToConfigure.id, pageConfig);
+      const pageIndex = dashboard.pages.findIndex(p => p.id === pageToConfigure.id);
+    if (pageIndex > -1) {
+      dashboard.pages[pageIndex].config = pageConfig;
+    }
+
+    setCurrentPage(pageToConfigure);
+
+    setPageConfigModalVisible(false);
+    setPageToConfigure(null); // Clean up the temporary state
+    message.success('Page configuration saved successfully');
+   
+      // currentPage.config = pageConfig;
+      // setPageConfigModalVisible(false);
+      // message.success('Page configuration saved successfully');
+ 
     } catch (error) {
       console.error('Failed to save page config:', error);
       message.error('Failed to save page config');
@@ -78,7 +119,8 @@ const PageManager = ({ dashboard, onBack }) => {
 
   const handlePreview = (page) => {
     const previewUrl = `/preview/${dashboard.id}/${page.id}`;
-    window.open(previewUrl, '_blank');
+    // window.open(previewUrl, '_blank');
+    navigate(previewUrl); 
   };
 
   const handleThumbnailUpload = (info) => {
@@ -92,7 +134,8 @@ const PageManager = ({ dashboard, onBack }) => {
   };
 
   const openPageSettings = (page) => {
-    setCurrentPage(page);
+    // setCurrentPage(page);
+    setPageToConfigure(page);
     setPageConfig(page.config || {
       route: '',
       title: page.name,

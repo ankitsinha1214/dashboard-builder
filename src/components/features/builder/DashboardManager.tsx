@@ -9,6 +9,7 @@ import DashboardService from '../../../services/DashboardService';
 import PageManager from './PageManager';
 import SidebarConfig from './SidebarConfig';
 import { useDashboards } from '../../../hooks/useDashboards';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -17,6 +18,7 @@ const { TextArea } = Input;
 const DashboardManager = () => {
   // const [dashboards, setDashboards] = useState([]);
   // const [currentDashboard, setCurrentDashboard] = useState(null);
+  const navigate = useNavigate();
   const { dashboards, loading, createDashboard, updateDashboard, deleteDashboard, saveDashboardConfig } = useDashboards();
   const [currentDashboard, setCurrentDashboard] = useState(null);
   // const [loading, setLoading] = useState(false);
@@ -142,7 +144,8 @@ const DashboardManager = () => {
 
   const handlePreview = (dashboard) => {
     const previewUrl = `/preview/dashboard/${dashboard.id}`;
-    window.open(previewUrl, '_blank');
+    // window.open(previewUrl, '_blank');
+    navigate(previewUrl); 
   };
 
   const beforeUpload = (file: RcFile) => {
