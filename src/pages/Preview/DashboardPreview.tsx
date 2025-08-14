@@ -155,6 +155,8 @@ const createWidget = (type, props) => {
 };
 
 
+
+
 const DashboardPreview = () => {
   // 2. Get both dashboardId and pageId from the URL
   const { dashboardId, pageId } = useParams();
@@ -207,11 +209,34 @@ const DashboardPreview = () => {
     );
   }
 
+
+  const renderMenuItems = (items, dashboardId) => {
+    return items.map(item => {
+      // NEW LOGIC: Only create a SubMenu if 'children' exists AND is not empty.
+      if (item.children && item.children.length > 0) {
+        return (
+          <Menu.SubMenu key={item.key} icon={<AppstoreOutlined />} title={item.title}>
+            {/* Recursively call the function for the children of the group */}
+            {renderMenuItems(item.children, dashboardId)}
+          </Menu.SubMenu>
+        );
+      }
+  
+      // In ALL other cases (no 'children' key, or 'children' is an empty array),
+      // render a clickable link.
+      return (
+        <Menu.Item key={item.key} icon={<PieChartOutlined />}>
+          <Link to={`/preview/${dashboardId}/${item.key}`}>{item.title}</Link>
+        </Menu.Item>
+      );
+    });
+  };
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+      {/* <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
         <div style={{ height: '32px', margin: '16px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '6px' }} />
-        {/* 4. Update Menu to be dynamic and use pageId for selection */}
+       
         <Menu theme="dark" selectedKeys={[pageId]} mode="inline">
 
                 {dashboardData.pages?.map(page => (
@@ -221,7 +246,14 @@ const DashboardPreview = () => {
                 ))}
 
           </Menu>
-      </Sider>
+      </Sider> */}
+<Sider collapsible={collapsed} onCollapse={setCollapsed}>
+    <div style={{ height: '32px', margin: '16px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '6px' }} />
+    <Menu theme="dark" selectedKeys={[pageId]} mode="inline">
+        {/* This will now render the menu exactly as you want. */}
+        {dashboardData.config?.sidebar && renderMenuItems(dashboardData.config.sidebar, dashboardId)}
+    </Menu>
+</Sider>
       <Layout className="site-layout">
         <Header className="site-layout-background" style={{ padding: '0 24px', background: '#fff', height: 'auto' }}>
             <div>
