@@ -291,6 +291,7 @@ export const handlers = [
       if (page) {
         return HttpResponse.json({
           ...page,
+          dashboard,
           config: {
             route: '/sample',
             title: page.name,
