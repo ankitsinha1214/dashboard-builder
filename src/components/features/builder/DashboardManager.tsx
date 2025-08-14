@@ -21,6 +21,7 @@ const DashboardManager = () => {
   const navigate = useNavigate();
   const { dashboards, loading, createDashboard, updateDashboard, deleteDashboard, saveDashboardConfig } = useDashboards();
   const [currentDashboard, setCurrentDashboard] = useState(null);
+  const [selectedDashboard, setSelectedDashboard] = useState(null);
   // const [loading, setLoading] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
@@ -133,13 +134,17 @@ const DashboardManager = () => {
         setCurrentDashboard(null);
     }
   }
-
+  console.log(currentDashboard)
   const handleSaveSidebarConfig = async (config) => {
-    if (!currentDashboard) return;
-    await saveDashboardConfig(currentDashboard.id, {
-        ...currentDashboard.config,
-        sidebar: config
-    });
+    console.log(config)
+    console.log(selectedDashboard)
+    console.log(currentDashboard)
+    if (!selectedDashboard) return;
+    // await saveDashboardConfig(selectedDashboard.id, {
+    //     ...selectedDashboard.config,
+    //     sidebar: config
+    // });
+    await saveDashboardConfig(selectedDashboard.id, config);
   };
 
   const handlePreview = (dashboard) => {
@@ -178,6 +183,11 @@ const DashboardManager = () => {
       thumbUrl: dashboard.thumbnail
     }] : []);
     setSettingsModalVisible(true);
+  };
+
+  const handleSidebarConfig = (dashboard) => {
+    setSelectedDashboard(dashboard);
+    setSidebarConfigVisible(true);
   };
 
   // Dummy images for dashboard cards
@@ -282,7 +292,8 @@ const DashboardManager = () => {
                     <Button
                     type="text"
                     icon={<HolderOutlined />}
-                    onClick={() => setSidebarConfigVisible(true)}
+                    // onClick={() => setSidebarConfigVisible(true)}
+                    onClick={() => handleSidebarConfig(dashboard)}
                     title="Configuration"
                   />,
                     <Button
@@ -324,10 +335,14 @@ const DashboardManager = () => {
 
       {!currentDashboard &&
         <SidebarConfig
-          dashboard={currentDashboard}
+          dashboard={selectedDashboard}
           // onSave={saveSidebarConfig}
           visible={sidebarConfigVisible}
-          onClose={() => setSidebarConfigVisible(false)}
+          // onClose={() => setSidebarConfigVisible(false)}
+          onClose={() => {
+            setSidebarConfigVisible(false);
+            setSelectedDashboard(null);
+          }}
           onSave={handleSaveSidebarConfig}
         />
       }

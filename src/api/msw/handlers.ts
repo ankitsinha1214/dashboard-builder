@@ -7,6 +7,7 @@ interface Dashboard {
   id: string;
   name: string;
   createdAt: string;
+  config: { sidebar: { key: string; title: string }[] };
   pages: Page[];
 }
 
@@ -27,6 +28,11 @@ let dashboards: Dashboard[] = [
     id: '1',
     name: 'Main Dashboard',
     createdAt: new Date().toISOString(),
+    config: {
+      sidebar: [
+        { key: 'p1', title: 'Overview' }
+      ]
+    },
     pages: [
       {
         id: 'p1',
@@ -76,6 +82,7 @@ export const handlers = [
       const newDashboard: Dashboard = {
         id: uuid(),
         name,
+        config: { sidebar: [] },
         createdAt: new Date().toISOString(),
         pages: []
       };
@@ -239,6 +246,7 @@ export const handlers = [
       return HttpResponse.json({
         ...dashboard,
         config: {
+          ...dashboard.config,
           title: dashboard.name,
           description: 'This is a sample dashboard',
           thumbnail: '/thumbnails/sample.png'

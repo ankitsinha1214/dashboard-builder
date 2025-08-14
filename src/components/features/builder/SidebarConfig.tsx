@@ -86,12 +86,8 @@
 
 // export default SidebarConfig;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-
 import { Button, Form, Input, message, Modal, Tree, Space, Popconfirm } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Import useEffect
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 
 interface SidebarItem {
@@ -113,21 +109,64 @@ const SidebarConfig = ({
   onClose: () => void;
 }) => {
   const [form] = Form.useForm();
-  const [treeData, setTreeData] = useState<SidebarItem[]>(
-    dashboard?.config?.sidebar || [
-      {
-        key: 'root',
-        title: 'Navigation',
-        children:
-          dashboard?.pages?.map(page => ({
-            key: page.id,
-            title: page.name
-          })) || []
-      }
-    ]
-  );
+  
+  /** Initialize the tree data based on dashboard config or pages */
+  const initTreeData = () => {
+    if (dashboard?.config?.sidebar?.length > 0) {
+      const addKeys = (items: any[]): SidebarItem[] => {
+        return items.map(item => ({
+          ...item,
+          key: item.key || `id-${Date.now()}-${Math.random()}`,
+          children: item.children ? addKeys(item.children) : undefined,
+        }));
+      };
+      return addKeys(dashboard.config.sidebar);
+    }
+  
+    if (dashboard?.pages?.length > 0) {
+      return dashboard.pages.map(page => ({
+        key: page?.id,
+        title: page?.name
+      }));
+    }
+  
+    return [];
+  };
 
-  /** Find and update node recursively */
+  const [treeData, setTreeData] = useState<SidebarItem[]>([]);
+  const [pageSelectorVisible, setPageSelectorVisible] = useState(false);
+  const [availablePages, setAvailablePages] = useState([]);
+  
+  /**
+   * Use useEffect to synchronize state with the dashboard prop.
+   * This hook will run every time the 'dashboard' prop changes.
+   */
+  useEffect(() => {
+    if (dashboard) {
+      const initialTreeData = initTreeData();
+      setTreeData(initialTreeData);
+
+      // Determine the pages that are not in the sidebar config
+      const pagesInSidebar = new Set();
+      const findPages = (items: SidebarItem[]) => {
+        items.forEach(item => {
+          pagesInSidebar.add(item.key);
+          if (item.children) {
+            findPages(item.children);
+          }
+        });
+      };
+      findPages(initialTreeData);
+      
+      const pagesToSelect = dashboard.pages.filter(
+        (page: any) => !pagesInSidebar.has(page.id)
+      );
+      setAvailablePages(pagesToSelect);
+    }
+  }, [dashboard]); // Dependency array: the effect runs when `dashboard` changes.
+
+  console.log(dashboard)
+  console.log(treeData)
   const updateNode = (data: SidebarItem[], key: string, callback: (node: SidebarItem) => void) => {
     data.forEach(item => {
       if (item.key === key) {
@@ -138,7 +177,6 @@ const SidebarConfig = ({
     });
   };
 
-  /** Remove node by key */
   const removeNode = (data: SidebarItem[], key: string): SidebarItem[] => {
     return data
       .map(item => {
@@ -151,7 +189,6 @@ const SidebarConfig = ({
       .filter(Boolean) as SidebarItem[];
   };
 
-  /** Handle drag-and-drop */
   const onDrop = (info: any) => {
     const dropKey = info.node.key;
     const dragKey = info.dragNode.key;
@@ -159,14 +196,14 @@ const SidebarConfig = ({
     const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
 
     const loop = (data: SidebarItem[], key: string, callback: any) => {
-      data.forEach((item, index, arr) => {
-        if (item.key === key) {
-          return callback(item, index, arr);
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].key === key) {
+          return callback(data[i], i, data);
         }
-        if (item.children) {
-          loop(item.children, key, callback);
+        if (data[i].children) {
+          loop(data[i].children!, key, callback);
         }
-      });
+      }
     };
 
     const data = [...treeData];
@@ -177,7 +214,6 @@ const SidebarConfig = ({
     });
 
     if (!info.dropToGap) {
-      // Drop on the content
       loop(data, dropKey, (item: SidebarItem) => {
         item.children = item.children || [];
         item.children.push(dragObj);
@@ -207,7 +243,6 @@ const SidebarConfig = ({
     setTreeData(data);
   };
 
-  /** Handle rename save */
   const saveRename = (key: string, newName: string) => {
     const newData = [...treeData];
     updateNode(newData, key, node => {
@@ -217,7 +252,6 @@ const SidebarConfig = ({
     setTreeData(newData);
   };
 
-  /** Start rename */
   const startRename = (key: string) => {
     const newData = [...treeData];
     updateNode(newData, key, node => {
@@ -226,75 +260,163 @@ const SidebarConfig = ({
     setTreeData(newData);
   };
 
-  /** Confirm save */
   const onFinish = () => {
-    onSave(treeData);
+    onSave({ sidebar: treeData });
     onClose();
     message.success('Sidebar configuration saved');
   };
 
-  return (
-    <Modal
-      title="Sidebar Configuration"
-      open={visible}
-      onOk={onFinish}
-      onCancel={onClose}
-      width={800}
-    >
-      <Form form={form} layout="vertical">
-        <Form.Item label="Navigation Structure">
-          <Tree
-            treeData={treeData.map(item => ({
-              ...item,
-              title: (
-                <Space>
-                  {item.isEditing ? (
-                    <Input
-                      size="small"
-                      defaultValue={item.title}
-                      onBlur={e => saveRename(item.key, e.target.value)}
-                      onPressEnter={e => saveRename(item.key, (e.target as HTMLInputElement).value)}
-                      autoFocus
-                    />
-                  ) : (
-                    <span>{item.title}</span>
-                  )}
-                  <EditOutlined
-                    style={{ color: '#1890ff', cursor: 'pointer' }}
-                    onClick={() => startRename(item.key)}
-                  />
-                  <Popconfirm
-                    title="Delete this item?"
-                    onConfirm={() => setTreeData(removeNode(treeData, item.key))}
-                  >
-                    <DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} />
-                  </Popconfirm>
-                </Space>
-              )
-            }))}
-            draggable
-            blockNode
-            onDrop={onDrop}
+  const handleAddPage = (page: any) => {
+    setTreeData(prevData => [
+      ...prevData,
+      {
+        key: page.id,
+        title: page.name,
+      },
+    ]);
+    setAvailablePages(prev => prev.filter(p => p.id !== page.id));
+    setPageSelectorVisible(false);
+  };
+
+  const handleCancel = () => {
+    const initialTreeData = initTreeData();
+    setTreeData(initialTreeData);
+    
+    // Recalculate available pages for a clean slate
+    const pagesInSidebar = new Set();
+    const findPages = (items: SidebarItem[]) => {
+      items.forEach(item => {
+        pagesInSidebar.add(item.key);
+        if (item.children) {
+          findPages(item.children);
+        }
+      });
+    };
+    findPages(initialTreeData);
+
+    const pagesToSelect = dashboard?.pages?.filter(
+      (page: any) => !pagesInSidebar.has(page.id)
+    ) || [];
+    setAvailablePages(pagesToSelect);
+    
+    onClose();
+  };
+
+  const renderTreeNodes = (data: SidebarItem[]): any =>
+    data.map(item => {
+      const actions = (
+        <Space>
+          <EditOutlined
+            style={{ color: '#1890ff', cursor: 'pointer' }}
+            onClick={() => startRename(item.key)}
           />
-        </Form.Item>
-        <Button
-          type="dashed"
-          icon={<PlusOutlined />}
-          onClick={() =>
-            setTreeData([
-              ...treeData,
-              {
-                key: `new-group-${Date.now()}`,
-                title: 'New Group',
-                children: []
+          <Popconfirm
+            title="Delete this item?"
+            onConfirm={() => {
+              const newTreeData = removeNode(treeData, item.key);
+              setTreeData(newTreeData);
+              const page = dashboard?.pages?.find((p: any) => p.id === item.key);
+              if (page) {
+                setAvailablePages(prev => [...prev, page]);
               }
-            ])
-          }
-        >
-          Add Group
-        </Button>
-      </Form>
-    </Modal>
+            }}
+          >
+            <DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} />
+          </Popconfirm>
+        </Space>
+      );
+      
+      const title = item.isEditing ? (
+        <Input
+          size="small"
+          defaultValue={item.title}
+          onBlur={e => saveRename(item.key, e.target.value)}
+          onPressEnter={e => saveRename(item.key, (e.target as HTMLInputElement).value)}
+          autoFocus
+        />
+      ) : (
+        <span>{item.title}</span>
+      );
+
+      return {
+        ...item,
+        title: (
+          <Space>
+            {title}
+            {actions}
+          </Space>
+        ),
+        children: item.children ? renderTreeNodes(item.children) : undefined,
+      };
+    });
+
+  return (
+    <>
+      <Modal
+        title="Sidebar Configuration"
+        open={visible}
+        onOk={onFinish}
+        onCancel={handleCancel}
+        width={800}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item label="Navigation Structure">
+            <Tree
+              treeData={renderTreeNodes(treeData)}
+              draggable
+              blockNode
+              onDrop={onDrop}
+            />
+          </Form.Item>
+          <Space>
+            <Button
+              type="dashed"
+              icon={<PlusOutlined />}
+              onClick={() =>
+                setTreeData([
+                  ...treeData,
+                  {
+                    key: `new-group-${Date.now()}`,
+                    title: 'New Group',
+                    children: []
+                  }
+                ])
+              }
+            >
+              Add Group
+            </Button>
+            <Button
+              type="dashed"
+              icon={<PlusOutlined />}
+              onClick={() => setPageSelectorVisible(true)}
+              disabled={availablePages.length === 0}
+            >
+              Add Page
+            </Button>
+          </Space>
+        </Form>
+      </Modal>
+
+      {/* Add Page Modal */}
+      <Modal
+        title="Add Page to Sidebar"
+        open={pageSelectorVisible}
+        onCancel={() => setPageSelectorVisible(false)}
+        footer={null}
+      >
+        {availablePages.length > 0 ? (
+          <Space direction="vertical">
+            {availablePages.map((page: any) => (
+              <Button key={page.id} onClick={() => handleAddPage(page)}>
+                {page.name}
+              </Button>
+            ))}
+          </Space>
+        ) : (
+          <p>All pages are already in the sidebar.</p>
+        )}
+      </Modal>
+    </>
   );
 };
 
