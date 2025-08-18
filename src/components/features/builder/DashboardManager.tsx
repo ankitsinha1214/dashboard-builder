@@ -128,6 +128,20 @@ const DashboardManager = () => {
     setSettingsModalVisible(false);
   };
 
+  // Add this useEffect to your DashboardManager component
+  useEffect(() => {
+    // If a dashboard is currently selected in the modal...
+    if (selectedDashboard) {
+      // ...find its newest version from the main dashboards list.
+      const updatedSelected = dashboards.find(d => d.id === selectedDashboard.id);
+      
+      // If found, update our local state to match the fresh data.
+      if (updatedSelected) {
+        setSelectedDashboard(updatedSelected);
+      }
+    }
+  }, [dashboards]); // This effect runs whenever the 'dashboards' array changes.
+
   const handleDeleteDashboard = async (id) => {
     const success = await deleteDashboard(id);
     if (success && currentDashboard?.id === id) {
@@ -135,21 +149,30 @@ const DashboardManager = () => {
     }
   }
   console.log(currentDashboard)
-  const handleSaveSidebarConfig = async (config) => {
-    console.log(config)
-    console.log(selectedDashboard)
-    console.log(currentDashboard)
-    if (!selectedDashboard) return;
-    // await saveDashboardConfig(selectedDashboard.id, {
-    //     ...selectedDashboard.config,
-    //     sidebar: config
-    // });
-    await saveDashboardConfig(selectedDashboard.id, config);
-  };
+  // const handleSaveSidebarConfig = async (config) => {
+  //   console.log(config)
+  //   console.log(selectedDashboard)
+  //   console.log(currentDashboard)
+  //   if (!selectedDashboard) return;
+  //   // await saveDashboardConfig(selectedDashboard.id, {
+  //   //     ...selectedDashboard.config,
+  //   //     sidebar: config
+  //   // });
+  //   await saveDashboardConfig(selectedDashboard.id, config);
+  // };
+
+  // In your DashboardManager.js file...
+
+const handleSaveSidebarConfig = async (config) => {
+  if (!selectedDashboard) return;
+  const updatedDashboard = await saveDashboardConfig(selectedDashboard.id, config);
+  if (updatedDashboard) {
+    setSelectedDashboard(updatedDashboard);
+  }
+};
 
   const handlePreview = (dashboard) => {
     const previewUrl = `/preview/dashboard/${dashboard.id}`;
-    // window.open(previewUrl, '_blank');
     navigate(previewUrl); 
   };
 

@@ -252,6 +252,26 @@ const SidebarConfig = ({
     setTreeData(newData);
   };
 
+  const handleAddGroup = () => {
+    // Create the new group object
+    const newGroup = {
+      key: `new-group-${Date.now()}`,
+      title: 'New Group',
+      children: []
+    };
+
+    // Create the new tree structure
+    const newTreeData = [...treeData, newGroup];
+
+    // 1. Update the local state so the new group appears in the modal instantly.
+    setTreeData(newTreeData);
+
+    // 2. This is the crucial step: Immediately call onSave to send the
+    //    updated structure to the parent component, which will trigger
+    //    the API call and update the rest of your app.
+    onSave({ sidebar: newTreeData });
+  };
+
   const startRename = (key: string) => {
     const newData = [...treeData];
     updateNode(newData, key, node => {
@@ -372,16 +392,17 @@ const SidebarConfig = ({
             <Button
               type="dashed"
               icon={<PlusOutlined />}
-              onClick={() =>
-                setTreeData([
-                  ...treeData,
-                  {
-                    key: `new-group-${Date.now()}`,
-                    title: 'New Group',
-                    children: []
-                  }
-                ])
-              }
+              // onClick={() =>
+              //   setTreeData([
+              //     ...treeData,
+              //     {
+              //       key: `new-group-${Date.now()}`,
+              //       title: 'New Group',
+              //       children: []
+              //     }
+              //   ])
+              // }
+              onClick={handleAddGroup}
             >
               Add Group
             </Button>

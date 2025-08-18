@@ -72,13 +72,29 @@ export function useDashboards() {
     }
   };
 
-  const saveDashboardConfig = async (dashboardId: string, config: any) => {
+//   const saveDashboardConfig = async (dashboardId: string, config: any) => {
+//     try {
+//       await DashboardService.saveDashboardConfig(dashboardId, config);
+//       message.success('Configuration saved successfully');
+//     } catch (error) {
+//       message.error('Failed to save configuration');
+//       console.error('Failed to save configuration:', error);
+//     }
+//   };
+
+  // Inside your useDashboards.js file...
+
+const saveDashboardConfig = async (dashboardId: string, config: any) => {
     try {
-      await DashboardService.saveDashboardConfig(dashboardId, config);
-      message.success('Configuration saved successfully');
+      const updatedDashboardFromAPI = await DashboardService.saveDashboardConfig(dashboardId, config);
+      setDashboards(currentDashboards =>
+        currentDashboards.map(d => (d.id === dashboardId ? updatedDashboardFromAPI : d))
+      );
+      return updatedDashboardFromAPI;
+  
     } catch (error) {
-      message.error('Failed to save configuration');
-      console.error('Failed to save configuration:', error);
+      console.error("Failed to save config:", error);
+      return null;
     }
   };
 
