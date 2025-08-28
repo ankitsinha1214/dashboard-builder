@@ -17,6 +17,7 @@ import ImageWidget from "../../widgets/ImageWidget";
 import MetricCardWidget from "../../widgets/MetricCardWidget";
 import TextWidget from "../../widgets/TextWidget";
 import ButtonWidget from "../../widgets/Button/ButtonWidget";
+import ModalWidget from "../../widgets/ModalWidget";
 
 // Widget Layout Editor Component
 const WidgetLayoutEditor = ({ initialLayout, onSave, onBack }) => {
@@ -173,6 +174,8 @@ const WidgetLayoutEditor = ({ initialLayout, onSave, onBack }) => {
                 return <CalendarWidget {...props} />;
             case 'form-widget':
                 return <FormWidget {...props} />;
+            case 'modal':
+                return <ModalWidget {...props} />;
             default:
                 return <div>Unknown widget type</div>;
         }

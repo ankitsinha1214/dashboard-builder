@@ -1,4 +1,4 @@
-import { BarChartOutlined, CalendarOutlined, DatabaseOutlined, FileTextOutlined, FormOutlined, LineChartOutlined, PictureOutlined } from "@ant-design/icons";
+import { BarChartOutlined, CalendarOutlined, DatabaseOutlined, FileTextOutlined, FormOutlined, LineChartOutlined, PictureOutlined, AppstoreAddOutlined } from "@ant-design/icons";
 
 // Widget type definitions
 export const WIDGET_TYPES = {
@@ -20,6 +20,17 @@ export const WIDGET_TYPES = {
             pageSize: 10
         },
         defaultSize: { width: 400, height: 300 }
+    },
+    'modal': {
+        name: 'Modal',
+        icon: AppstoreAddOutlined,
+        description: 'A pop-up modal dialog box',
+        category: 'ui',
+        defaultConfig: {
+            title: 'New Modal',
+            content: 'Your modal content goes here.',
+        },
+        defaultSize: { width: 400, height: 250 }
     },
     'chart-bar': {
         name: 'Bar Chart',

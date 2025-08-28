@@ -113,6 +113,7 @@ const ButtonConfigPanel = ({ config, onConfigChange, onCancel }) => {
           <Option value="loading">Show Loading</Option>
           <Option value="link">Navigate to Link</Option>
           <Option value="function">Execute Function</Option>
+          <Option value="model">Open Model</Option>
         </Select>
       </Form.Item>
 

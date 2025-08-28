@@ -5,7 +5,7 @@
 import { 
   DatabaseOutlined, PlusOutlined, BarChartOutlined,
   TableOutlined, UnorderedListOutlined, PictureOutlined,
-  FormOutlined, CalendarOutlined
+  FormOutlined, CalendarOutlined, AppstoreAddOutlined
 } from "@ant-design/icons";
 import { 
   Button, Card, Divider, Dropdown, Menu, Space, Typography,
@@ -97,6 +97,15 @@ const WIDGET_TEMPLATES = {
       title: "Calendar",
       viewMode: "month",
       showWeekends: true
+    }
+  },
+  modal: {
+    name: "Custom Modal",
+    icon: AppstoreAddOutlined,
+    category: "ui",
+    defaultConfig: {
+      title: "Custom Modal",
+      content: ""
     }
   }
 };
